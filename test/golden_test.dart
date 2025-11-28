@@ -168,6 +168,9 @@ void main() {
       testWidgets('MyApp renders correctly on ${device.name}', (
         WidgetTester tester,
       ) async {
+        // Enable shadows for golden tests
+        debugDisableShadows = false;
+
         // Set the surface size for the test
         await tester.binding.setSurfaceSize(device.size);
         tester.view.devicePixelRatio = device.devicePixelRatio;
@@ -191,6 +194,9 @@ void main() {
 
         // Reset the surface size
         await tester.binding.setSurfaceSize(null);
+
+        // Reset shadows flag back to normal (must be done before test body ends)
+        debugDisableShadows = true;
       });
     }
   });
@@ -200,6 +206,9 @@ void main() {
       testWidgets('MyApp renders correctly on ${device.name}', (
         WidgetTester tester,
       ) async {
+        // Enable shadows for golden tests
+        debugDisableShadows = false;
+
         // Set the surface size for the test
         await tester.binding.setSurfaceSize(device.size);
         tester.view.devicePixelRatio = device.devicePixelRatio;
@@ -223,6 +232,9 @@ void main() {
 
         // Reset the surface size
         await tester.binding.setSurfaceSize(null);
+
+        // Reset shadows flag back to normal (must be done before test body ends)
+        debugDisableShadows = true;
       });
     }
   });
@@ -251,6 +263,9 @@ void main() {
       testWidgets('MyApp renders correctly on ${device.name}', (
         WidgetTester tester,
       ) async {
+        // Enable shadows for golden tests
+        debugDisableShadows = false;
+
         // Set the surface size for the test
         await tester.binding.setSurfaceSize(device.size);
         tester.view.devicePixelRatio = device.devicePixelRatio;
@@ -274,6 +289,9 @@ void main() {
 
         // Reset the surface size
         await tester.binding.setSurfaceSize(null);
+
+        // Reset shadows flag back to normal (must be done before test body ends)
+        debugDisableShadows = true;
       });
     }
   });

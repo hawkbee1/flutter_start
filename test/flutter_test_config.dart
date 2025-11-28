@@ -2,31 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-/// Custom test binding that allows shadows to be enabled without failing invariant checks
-class GoldenTestWidgetsFlutterBinding
-    extends AutomatedTestWidgetsFlutterBinding {
-  @override
-  void initInstances() {
-    super.initInstances();
-    // Enable shadows for golden tests
-    debugDisableShadows = false;
-  }
-
-  static GoldenTestWidgetsFlutterBinding ensureInitialized() {
-    if (WidgetsBinding.instance is GoldenTestWidgetsFlutterBinding) {
-      return WidgetsBinding.instance as GoldenTestWidgetsFlutterBinding;
-    }
-    return GoldenTestWidgetsFlutterBinding();
-  }
-}
 
 /// Global test configuration to enable real font rendering in golden tests.
 /// This file is automatically loaded by the Flutter test framework.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
-  GoldenTestWidgetsFlutterBinding.ensureInitialized();
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   // Load Material fonts for proper text rendering in golden tests
   await _loadMaterialFonts();
