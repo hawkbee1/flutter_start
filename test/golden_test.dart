@@ -1,10 +1,10 @@
 // Golden tests for the Flutter app across various device screen sizes.
 //
-// To generate/update golden files, run:
-//   flutter test --update-goldens
+// To generate/update golden files with real fonts, run:
+//   flutter test --update-goldens --tags=golden
 //
 // To run the golden tests:
-//   flutter test test/golden_test.dart
+//   flutter test test/golden_test.dart --tags=golden
 
 import 'dart:io';
 
@@ -14,34 +14,32 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter_start/main.dart';
 
-/// Load fonts for golden tests to display text properly
-Future<void> loadFonts() async {
+/// Load Material fonts for golden tests to display text properly
+Future<void> loadAppFonts() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // Load the Roboto font (Material Design default font)
-  final fontLoader = FontLoader('Roboto');
-
-  // Try to load system Roboto font or use the Flutter cache
+  // Load Roboto font variants from Flutter's material_fonts cache
   final flutterRoot = Platform.environment['FLUTTER_ROOT'];
-  if (flutterRoot != null) {
-    final fontPath =
-        '$flutterRoot/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf';
+  if (flutterRoot == null) {
+    debugPrint('FLUTTER_ROOT not set, text may not render properly in goldens');
+    return;
+  }
+
+  final fontVariants = [
+    ('Roboto', 'Roboto-Regular.ttf'),
+    ('Roboto', 'Roboto-Medium.ttf'),
+    ('Roboto', 'Roboto-Bold.ttf'),
+  ];
+
+  for (final (fontFamily, fileName) in fontVariants) {
+    final fontPath = '$flutterRoot/bin/cache/artifacts/material_fonts/$fileName';
     final file = File(fontPath);
     if (await file.exists()) {
+      final fontLoader = FontLoader(fontFamily);
       final bytes = await file.readAsBytes();
       fontLoader.addFont(Future.value(ByteData.view(bytes.buffer)));
       await fontLoader.load();
-      return;
     }
-  }
-
-  // Fallback: use rootBundle if available (for pub packages)
-  try {
-    final fontData = rootBundle.load('packages/flutter/fonts/Roboto-Regular.ttf');
-    fontLoader.addFont(fontData.then((data) => data));
-    await fontLoader.load();
-  } catch (_) {
-    // Font loading failed, tests will use default test font
   }
 }
 
@@ -160,10 +158,15 @@ const tabletScreenSizes = [
 ];
 
 void main() {
+  setUpAll(() async {
+    await loadAppFonts();
+  });
+
   group('Golden Tests - Phone Screen Sizes', () {
     for (final device in phoneScreenSizes) {
-      testWidgets('MyApp renders correctly on ${device.name}',
-          (WidgetTester tester) async {
+      testWidgets('MyApp renders correctly on ${device.name}', (
+        WidgetTester tester,
+      ) async {
         // Set the surface size for the test
         await tester.binding.setSurfaceSize(device.size);
         tester.view.devicePixelRatio = device.devicePixelRatio;
@@ -193,8 +196,9 @@ void main() {
 
   group('Golden Tests - Tablet Screen Sizes', () {
     for (final device in tabletScreenSizes) {
-      testWidgets('MyApp renders correctly on ${device.name}',
-          (WidgetTester tester) async {
+      testWidgets('MyApp renders correctly on ${device.name}', (
+        WidgetTester tester,
+      ) async {
         // Set the surface size for the test
         await tester.binding.setSurfaceSize(device.size);
         tester.view.devicePixelRatio = device.devicePixelRatio;
@@ -243,8 +247,9 @@ void main() {
     ];
 
     for (final device in landscapeDevices) {
-      testWidgets('MyApp renders correctly on ${device.name}',
-          (WidgetTester tester) async {
+      testWidgets('MyApp renders correctly on ${device.name}', (
+        WidgetTester tester,
+      ) async {
         // Set the surface size for the test
         await tester.binding.setSurfaceSize(device.size);
         tester.view.devicePixelRatio = device.devicePixelRatio;
