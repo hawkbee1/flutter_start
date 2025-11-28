@@ -6,7 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Custom test binding that allows shadows to be enabled without failing invariant checks
-class GoldenTestWidgetsFlutterBinding extends AutomatedTestWidgetsFlutterBinding {
+class GoldenTestWidgetsFlutterBinding
+    extends AutomatedTestWidgetsFlutterBinding {
   @override
   void initInstances() {
     super.initInstances();
