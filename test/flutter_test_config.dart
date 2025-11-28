@@ -12,6 +12,9 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   // Load Material fonts for proper text rendering in golden tests
   await _loadMaterialFonts();
 
+  // Load Material Icons font for proper icon rendering in golden tests
+  await _loadMaterialIcons();
+
   await testMain();
 }
 
@@ -40,5 +43,25 @@ Future<void> _loadMaterialFonts() async {
       fontLoader.addFont(Future.value(ByteData.view(bytes.buffer)));
       await fontLoader.load();
     }
+  }
+}
+
+/// Load Material Icons font from Flutter's cache for golden tests
+Future<void> _loadMaterialIcons() async {
+  final flutterRoot = Platform.environment['FLUTTER_ROOT'];
+  if (flutterRoot == null) {
+    return;
+  }
+
+  // MaterialIcons font is located in the material_fonts cache
+  final iconFontPath =
+      '$flutterRoot/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
+  final file = File(iconFontPath);
+
+  if (file.existsSync()) {
+    final fontLoader = FontLoader('MaterialIcons');
+    final bytes = file.readAsBytesSync();
+    fontLoader.addFont(Future.value(ByteData.view(bytes.buffer)));
+    await fontLoader.load();
   }
 }
