@@ -32,7 +32,8 @@ Future<void> loadAppFonts() async {
   ];
 
   for (final (fontFamily, fileName) in fontVariants) {
-    final fontPath = '$flutterRoot/bin/cache/artifacts/material_fonts/$fileName';
+    final fontPath =
+        '$flutterRoot/bin/cache/artifacts/material_fonts/$fileName';
     final file = File(fontPath);
     if (await file.exists()) {
       final fontLoader = FontLoader(fontFamily);

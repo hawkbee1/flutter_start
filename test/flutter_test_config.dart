@@ -31,7 +31,8 @@ Future<void> _loadMaterialFonts() async {
   ];
 
   for (final fileName in fontFiles) {
-    final fontPath = '$flutterRoot/bin/cache/artifacts/material_fonts/$fileName';
+    final fontPath =
+        '$flutterRoot/bin/cache/artifacts/material_fonts/$fileName';
     final file = File(fontPath);
     if (file.existsSync()) {
       final fontLoader = FontLoader('Roboto');
