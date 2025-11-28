@@ -1,0 +1,274 @@
+// Golden tests for the Flutter app across various device screen sizes.
+//
+// To generate/update golden files, run:
+//   flutter test --update-goldens
+//
+// To run the golden tests:
+//   flutter test test/golden_test.dart
+
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:flutter_start/main.dart';
+
+/// Load fonts for golden tests to display text properly
+Future<void> loadFonts() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Load the Roboto font (Material Design default font)
+  final fontLoader = FontLoader('Roboto');
+
+  // Try to load system Roboto font or use the Flutter cache
+  final flutterRoot = Platform.environment['FLUTTER_ROOT'];
+  if (flutterRoot != null) {
+    final fontPath =
+        '$flutterRoot/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf';
+    final file = File(fontPath);
+    if (await file.exists()) {
+      final bytes = await file.readAsBytes();
+      fontLoader.addFont(Future.value(ByteData.view(bytes.buffer)));
+      await fontLoader.load();
+      return;
+    }
+  }
+
+  // Fallback: use rootBundle if available (for pub packages)
+  try {
+    final fontData = rootBundle.load('packages/flutter/fonts/Roboto-Regular.ttf');
+    fontLoader.addFont(fontData.then((data) => data));
+    await fontLoader.load();
+  } catch (_) {
+    // Font loading failed, tests will use default test font
+  }
+}
+
+/// Device screen configuration for golden testing
+class DeviceScreenSize {
+  final String name;
+  final Size size;
+  final double devicePixelRatio;
+
+  const DeviceScreenSize({
+    required this.name,
+    required this.size,
+    this.devicePixelRatio = 1.0,
+  });
+
+  @override
+  String toString() => name;
+}
+
+/// Common phone screen sizes
+const phoneScreenSizes = [
+  // iPhone SE (1st gen) / iPhone 5
+  DeviceScreenSize(
+    name: 'iPhone_SE_1st_gen',
+    size: Size(320, 568),
+    devicePixelRatio: 2.0,
+  ),
+  // iPhone 8 / iPhone SE (2nd & 3rd gen)
+  DeviceScreenSize(
+    name: 'iPhone_8_SE',
+    size: Size(375, 667),
+    devicePixelRatio: 2.0,
+  ),
+  // iPhone 12 / 13 / 14
+  DeviceScreenSize(
+    name: 'iPhone_12_13_14',
+    size: Size(390, 844),
+    devicePixelRatio: 3.0,
+  ),
+  // iPhone 12/13/14 Pro Max
+  DeviceScreenSize(
+    name: 'iPhone_Pro_Max',
+    size: Size(428, 926),
+    devicePixelRatio: 3.0,
+  ),
+  // iPhone 15 Pro
+  DeviceScreenSize(
+    name: 'iPhone_15_Pro',
+    size: Size(393, 852),
+    devicePixelRatio: 3.0,
+  ),
+  // Samsung Galaxy S21
+  DeviceScreenSize(
+    name: 'Samsung_Galaxy_S21',
+    size: Size(360, 800),
+    devicePixelRatio: 3.0,
+  ),
+  // Google Pixel 5
+  DeviceScreenSize(
+    name: 'Google_Pixel_5',
+    size: Size(393, 851),
+    devicePixelRatio: 2.75,
+  ),
+  // Google Pixel 7
+  DeviceScreenSize(
+    name: 'Google_Pixel_7',
+    size: Size(412, 915),
+    devicePixelRatio: 2.625,
+  ),
+];
+
+/// Common tablet screen sizes
+const tabletScreenSizes = [
+  // iPad Mini
+  DeviceScreenSize(
+    name: 'iPad_Mini',
+    size: Size(768, 1024),
+    devicePixelRatio: 2.0,
+  ),
+  // iPad (10th gen)
+  DeviceScreenSize(
+    name: 'iPad_10th_gen',
+    size: Size(820, 1180),
+    devicePixelRatio: 2.0,
+  ),
+  // iPad Air
+  DeviceScreenSize(
+    name: 'iPad_Air',
+    size: Size(820, 1180),
+    devicePixelRatio: 2.0,
+  ),
+  // iPad Pro 11"
+  DeviceScreenSize(
+    name: 'iPad_Pro_11',
+    size: Size(834, 1194),
+    devicePixelRatio: 2.0,
+  ),
+  // iPad Pro 12.9"
+  DeviceScreenSize(
+    name: 'iPad_Pro_12_9',
+    size: Size(1024, 1366),
+    devicePixelRatio: 2.0,
+  ),
+  // Samsung Galaxy Tab S8
+  DeviceScreenSize(
+    name: 'Samsung_Galaxy_Tab_S8',
+    size: Size(800, 1280),
+    devicePixelRatio: 2.0,
+  ),
+  // Android Tablet (common 10" size)
+  DeviceScreenSize(
+    name: 'Android_Tablet_10',
+    size: Size(800, 1280),
+    devicePixelRatio: 1.5,
+  ),
+];
+
+void main() {
+  group('Golden Tests - Phone Screen Sizes', () {
+    for (final device in phoneScreenSizes) {
+      testWidgets('MyApp renders correctly on ${device.name}',
+          (WidgetTester tester) async {
+        // Set the surface size for the test
+        await tester.binding.setSurfaceSize(device.size);
+        tester.view.devicePixelRatio = device.devicePixelRatio;
+
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(
+              size: device.size,
+              devicePixelRatio: device.devicePixelRatio,
+            ),
+            child: const MyApp(),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(MyApp),
+          matchesGoldenFile('goldens/phone_${device.name}.png'),
+        );
+
+        // Reset the surface size
+        await tester.binding.setSurfaceSize(null);
+      });
+    }
+  });
+
+  group('Golden Tests - Tablet Screen Sizes', () {
+    for (final device in tabletScreenSizes) {
+      testWidgets('MyApp renders correctly on ${device.name}',
+          (WidgetTester tester) async {
+        // Set the surface size for the test
+        await tester.binding.setSurfaceSize(device.size);
+        tester.view.devicePixelRatio = device.devicePixelRatio;
+
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(
+              size: device.size,
+              devicePixelRatio: device.devicePixelRatio,
+            ),
+            child: const MyApp(),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(MyApp),
+          matchesGoldenFile('goldens/tablet_${device.name}.png'),
+        );
+
+        // Reset the surface size
+        await tester.binding.setSurfaceSize(null);
+      });
+    }
+  });
+
+  group('Golden Tests - Landscape Orientations', () {
+    // Test a subset of devices in landscape mode
+    final landscapeDevices = [
+      DeviceScreenSize(
+        name: 'iPhone_12_landscape',
+        size: const Size(844, 390),
+        devicePixelRatio: 3.0,
+      ),
+      DeviceScreenSize(
+        name: 'iPad_Pro_11_landscape',
+        size: const Size(1194, 834),
+        devicePixelRatio: 2.0,
+      ),
+      DeviceScreenSize(
+        name: 'Pixel_7_landscape',
+        size: const Size(915, 412),
+        devicePixelRatio: 2.625,
+      ),
+    ];
+
+    for (final device in landscapeDevices) {
+      testWidgets('MyApp renders correctly on ${device.name}',
+          (WidgetTester tester) async {
+        // Set the surface size for the test
+        await tester.binding.setSurfaceSize(device.size);
+        tester.view.devicePixelRatio = device.devicePixelRatio;
+
+        await tester.pumpWidget(
+          MediaQuery(
+            data: MediaQueryData(
+              size: device.size,
+              devicePixelRatio: device.devicePixelRatio,
+            ),
+            child: const MyApp(),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        await expectLater(
+          find.byType(MyApp),
+          matchesGoldenFile('goldens/landscape_${device.name}.png'),
+        );
+
+        // Reset the surface size
+        await tester.binding.setSurfaceSize(null);
+      });
+    }
+  });
+}
